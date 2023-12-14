@@ -3,6 +3,9 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import java.nio.file.attribute.FileTime;
 
 public class BackgroundCircle {
     private Texture bg;
@@ -31,13 +34,14 @@ public class BackgroundCircle {
 
     }
 
-    public void render(float delta, float y) {
-        int leftBottomPointcamera = (int) (camera.position.x) - (int) MyGdxGame.WIDTH / 2;
-        float startPoint = (((float) (camera.position.x) - (float) MyGdxGame.WIDTH / 2) / (width))
+    public void render(float delta, float y, FitViewport gameView) {
+        int leftBottomPointcamera = (int) (camera.position.x) - (int) MyGdxGame.SCREEN_WIDTH / 2;
+        //System.out.println(camera.position.x + "<- Normal " + gameView.getScreenX() + "<- Fucking gay");
+        float startPoint = (((float) (camera.position.x) - (float) MyGdxGame.SCREEN_WIDTH / 2) / (width))
                 * width - width;
         for (int i = 0; i < n; i++) {
-            batch.draw(bg, startPoint + i * width + (leftBottomPointcamera * paralaxkoef) % width,
-                    y - MyGdxGame.HEIGHT / 2 - 5, width, height);
+            batch.draw(bg, 0,
+                    0, width, height);
         }
     }
 }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Joystick extends Actor {
+    boolean flag = false;
     private OrthographicCamera camera;
     private Texture bgCircle, fgTexture;
     private float bgCircleSize, fgTextureSize, currentLength;
@@ -17,7 +18,7 @@ public class Joystick extends Actor {
     private Vector2 centerPosition = new Vector2(), activeCenterPosition = new Vector2();
     private Vector2 result = new Vector2();
     private FitViewport gameViewport;
-    private float defaultX = 3, defaultY = 3;
+    private float defaultX = 15, defaultY = 15;
 
     public Joystick(FitViewport gameViewport, OrthographicCamera camera, Texture bgCircle, Texture fgTexture, float bgCircleSize, float fgTextureSize) {
         this.gameViewport = gameViewport;
@@ -37,7 +38,7 @@ public class Joystick extends Actor {
     public void draw(Batch batch, float parentAlpha){
         calculatePosition();
         editResult();
-        if(isStatic || Gdx.input.isTouched()){
+        if(isStatic || Gdx.input.isTouched() && Gdx.input.getX() < MyGdxGame.SCREEN_WIDTH / 2){
             batch.draw( bgCircle,
                     centerPosition.x - bgCircleSize/2f,
                     centerPosition.y - bgCircleSize/2f,
@@ -59,6 +60,7 @@ public class Joystick extends Actor {
         result.set(0, 0);
         isTouchedInsideCircle = false;
         activeCenterPosition.set(centerPosition);
+        flag = false;
 //        if(isStatic){
 //            centerPosition.set(
 //                    defaultX,
@@ -75,6 +77,7 @@ public class Joystick extends Actor {
     }
 
     private void calculatePosition() {
+        System.out.println();
         if(isStatic) {
             centerPosition.set(
                     defaultX,
@@ -95,7 +98,7 @@ public class Joystick extends Actor {
                 isTouchedInsideCircle = true;
             }
         }
-        else if (Gdx.input.justTouched()) {
+        else if (Gdx.input.justTouched() && flag == false && Gdx.input.getX() < MyGdxGame.SCREEN_WIDTH / 2) {
             centerPosition.set(
                     gameViewport.unproject(
                             new Vector2(
@@ -104,8 +107,9 @@ public class Joystick extends Actor {
                             )
                     )
             );
+            flag = true;
         }
-        if(Gdx.input.isTouched() && (!isStatic || isTouchedInsideCircle)){
+        if(Gdx.input.isTouched() && (!isStatic || isTouchedInsideCircle) && Gdx.input.getX() < MyGdxGame.SCREEN_WIDTH / 2){
             activeCenterPosition.set(
                     gameViewport.unproject(
                             new Vector2(

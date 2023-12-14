@@ -29,8 +29,8 @@ import java.util.HashMap;
 public class TestMapScreen implements Screen {
     private static final float unitScale = 0.2f;
     private final SpriteBatch batch;
-    private final OrthographicCamera camera, hudCamera;
-    private FitViewport gameViewport;
+    public final OrthographicCamera camera, hudCamera;
+    FitViewport gameViewport;
     private FitViewport hudViewport;
     private Stage hudStage;
     private TmxMapLoader tmxMapLoader;
@@ -45,7 +45,7 @@ public class TestMapScreen implements Screen {
     private Texture first, second, third;
     private HashMap<String, BackgroundCircle> parallaxBg = new HashMap<>();
 
-//    Texture deleteLater;
+    Texture deleteLater;
 
     public TestMapScreen(SpriteBatch batch, OrthographicCamera camera, OrthographicCamera hudCamera) {
         this.batch = batch;
@@ -56,7 +56,7 @@ public class TestMapScreen implements Screen {
         hudViewport = new FitViewport(MyGdxGame.WIDTH, MyGdxGame.HEIGHT, hudCamera);
         hudStage = new Stage(hudViewport, batch);
 
-//        deleteLater= new Texture("badlogic.jpg");
+        deleteLater= new Texture("badlogic.jpg");
         tmxMapLoader = new TmxMapLoader();
         map = tmxMapLoader.load("jo.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, unitScale, batch);
@@ -103,9 +103,10 @@ public class TestMapScreen implements Screen {
         }
 
 
-        parallaxBg.put("firstBg", new BackgroundCircle(first, batch, camera, -0.2f));
-        parallaxBg.put("secondBg", new BackgroundCircle(second, batch, camera, -0.15f));
+
         parallaxBg.put("thirdBg", new BackgroundCircle(third, batch, camera, -0.3f));
+        parallaxBg.put("secondBg", new BackgroundCircle(second, batch, camera, -0.15f));
+        parallaxBg.put("firstBg", new BackgroundCircle(first, batch, camera, -0.2f));
         joystick = new Joystick(hudViewport, hudCamera, new Texture("bgJoystick.png"),
                 new Texture("fgStick.png"), 20, 6);
         hudStage.addActor(joystick);
@@ -146,20 +147,34 @@ public class TestMapScreen implements Screen {
 
         camera.position.add(
                 joystick.getResult().x / 3f,
-                joystick.getResult().y / 3f,
+                0,
                 0
         );
+        if (Gdx.input.getX() > MyGdxGame.SCREEN_WIDTH / 2){
+
+        }
 
         //Обновление камеры
         camera.update();
         hudCamera.update();
 
+
+
         //Для отображения объектов через batch.begin() batch.end()
-        batch.setProjectionMatrix(camera.combined);
+
+        batch.begin();
+        //renderBackground1(delta);
+        batch.draw(deleteLater, 0, 0);
+        System.out.println(gameViewport.getScreenX() + " " + gameViewport.getScreenY());
+        batch.setProjectionMatrix(gameViewport.getCamera().combined);
+        batch.end();
+
 
         //Отображение карты
         renderer.setView(camera);
         renderer.render();
+
+
 
         //Отвечает за отрисовку границ rectangle
         b2dr.render(world, camera.combined);
@@ -169,6 +184,8 @@ public class TestMapScreen implements Screen {
 
         //Физическая симуляция мира
         world.step(1 / 160f, 6, 2);
+
+
     }
 
     @Override
@@ -206,5 +223,11 @@ public class TestMapScreen implements Screen {
                 gameViewport.getScreenHeight() - Gdx.input.getY() + gameViewport.getScreenY()
         );
         worldTouch = gameViewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    }
+
+    public void renderBackground1(float delta){
+        for (BackgroundCircle bgCircle : parallaxBg.values()){
+            bgCircle.render(delta, camera.position.y, gameViewport);
+        }
     }
 }
